@@ -1,0 +1,34 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+<general>
+this is a python 3.10 project for locating code using gemini 2.5 flash
+
+uv for package management
+</general>
+
+<structure>
+main.py at root
+
+actual code is in modules
+
+</structure>
+
+
+<style>
+use types everywhere
+avoid inane comments
+write clean code and split things into small functions
+prefer OOP
+leave __init__.py empty, i'm not gonna deal with those
+</style>
+
+
+
+<notes>
+for AI componets avoid changing any of the model names etc
+use uv to add dependencies, dont add specific version numbers there, always install latest
+</notes>

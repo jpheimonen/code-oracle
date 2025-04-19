@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code_oracle"
+version = "0.1.0"
+description = "Code location tool using Gemini 2.5 Flash"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "JP", email = "user@example.com"},
+]
+
+dependencies = [
+    "langchain-core",
+    "langchain",
+    "pydantic",
+    "google-generativeai",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto" 

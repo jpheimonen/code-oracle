@@ -159,6 +159,14 @@ class FileAcceptor:
         Returns:
             True if file should be accepted, False otherwise
         """
+        # Check if file exists and is accessible
+        try:
+            if not file_path.exists() or not os.access(file_path, os.R_OK):
+                return False
+        except (PermissionError, FileNotFoundError, OSError):
+            # Handle any file system errors
+            return False
+            
         # Check if it's a known binary file
         if file_path.suffix.lower() in self.BINARY_EXTENSIONS:
             return False
@@ -179,6 +187,14 @@ class FileAcceptor:
         Returns:
             True if directory should be traversed, False otherwise
         """
+        # Check if directory exists and is accessible
+        try:
+            if not dir_path.exists() or not os.access(dir_path, os.R_OK):
+                return False
+        except (PermissionError, FileNotFoundError, OSError):
+            # Handle any file system errors
+            return False
+            
         # Ignore directories that start with .
         if dir_path.name.startswith('.'):
             return False

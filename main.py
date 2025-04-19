@@ -5,8 +5,10 @@ from app.util.file_traverser import FileTraverser
 import sys
     
 def main() -> None:
-    
-    code_location_agent = CodeLocationAgent(code_reader=CodeReader(base_path="."))
+    base_path = sys.argv[1] if len(sys.argv) > 1 else "."
+    code_reader = CodeReader(base_path)
+    print(code_reader.get_file_structure())
+    code_location_agent = CodeLocationAgent(code_reader=code_reader)
     
     if len(sys.argv) > 1:
         question = " ".join(sys.argv[1:])

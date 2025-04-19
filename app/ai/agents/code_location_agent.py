@@ -15,7 +15,7 @@ class CodeLocationAnswerFinalRequired(BaseModel):
     relevant_files: List[int] = Field(description="List of relevant file indices")
 
 class RelevantFiles(BaseModel):
-    relevant_files: List[int] = Field(description="List of relevant file indices that further AI agents should read")
+    relevant_files: List[int] = Field(description="List of relevant file indices that further AI agents should read. Must NOT be empty")
 
 
 
@@ -28,10 +28,11 @@ class CodeLocationAgent(BaseAgent):
 
     def answer_question(self, question: str) -> str:
         answer = self.get_response_text(question)
-        relevant_files = self.get_structured_response(question, RelevantFiles).relevant_files
+        relevant_files_question = f"{self.code_reader.get_file_structure()} List indices of all files that are relevant to the answer, esp the ones you referred to in your answer: {answer}"
+        relevant_files = self.get_structured_response(relevant_files_question, RelevantFiles).relevant_files
         print(relevant_files)
 
-        return f"{answer}\nRelevant files: {self.code_reader.get_file_structure(relevant_files)}"
+        return f"{answer}\n\nRelevant files:\n{self.code_reader.get_file_structure(relevant_files)}"
     
     def answer_question_old(self, question: str) -> str:
         answer = CodeLocationAnswer(final_answer=False, answer=None, relevant_files=None)

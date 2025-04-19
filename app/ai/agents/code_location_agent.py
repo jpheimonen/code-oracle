@@ -14,6 +14,10 @@ class CodeLocationAnswerFinalRequired(BaseModel):
     answer: str = Field(description="The answer text")
     relevant_files: List[int] = Field(description="List of relevant file indices")
 
+class RelevantFiles(BaseModel):
+    relevant_files: List[int] = Field(description="List of relevant file indices that further AI agents should read")
+
+
 
 class CodeLocationAgent(BaseAgent):
     
@@ -23,6 +27,13 @@ class CodeLocationAgent(BaseAgent):
       self.max_iterations = max_iterations
 
     def answer_question(self, question: str) -> str:
+        answer = self.get_response_text(question)
+        relevant_files = self.get_structured_response(question, RelevantFiles).relevant_files
+        print(relevant_files)
+
+        return f"{answer}\nRelevant files: {self.code_reader.get_file_structure(relevant_files)}"
+    
+    def answer_question_old(self, question: str) -> str:
         answer = CodeLocationAnswer(final_answer=False, answer=None, relevant_files=None)
         count = 0
         while not answer.final_answer and count < self.max_iterations-1:

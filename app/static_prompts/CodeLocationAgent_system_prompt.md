@@ -10,14 +10,7 @@ It is important to note that you are based on a model where input tokens are ext
 ask for lots of different files contents - potentially hundreds - on each tool call. Remember, this is VERY cheap and there is no need 
 to use this tool conservatively.
 
-Your answer should be either 
-a. your final answer to the question to be provided to the end user
-or
-b. ask to have more tool/reasoning runs to provide the final answer 
-
-You might also be prompted to give the final answer IMMEDIATELY
-
-Your answer should consist of both the answer and list of relevant file indices
+If and when you refer to files in your response, add the index, eg [420]
 
 
 <important>

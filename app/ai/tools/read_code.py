@@ -25,15 +25,22 @@ class CodeReader:
         traverser = FileTraverser(str(self.base_path))
         self.file_paths = list(traverser)
     
-    def get_file_structure(self) -> str:
+    def get_file_structure(self, indices: List[int] | None = None) -> str:
         """
         Get a string representation of the file structure with indices.
         
+        Args:
+            indices: Optional list of indices to include in the structure. If None, include all files.
+            
         Returns:
             A string representation of the file structure
         """
         result = []
         for i, file_path in enumerate(self.file_paths):
+            # Skip files with indices not in the provided list
+            if indices is not None and i not in indices:
+                continue
+                
             relative_path = file_path.relative_to(self.base_path)
             
             # Get file size with appropriate units

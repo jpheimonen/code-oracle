@@ -7,26 +7,22 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import Tool
 from langchain_core.runnables import RunnableConfig
+from app.ai.agent_core.model_provider import ModelProvider
 from dotenv import load_dotenv
 # from langchain.globals import set_debug
 # set_debug(True)
 load_dotenv()
 config = RunnableConfig(recursion_limit=100)
 class LangChainService:
-    def __init__(self, system_prompt: str, thinking: bool = True):
-        self.model = ChatAnthropic( # type: ignore
-            model_name="claude-3-7-sonnet-20250219", 
-            anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-            thinking={"budget_tokens": 4096, "type":"enabled"} if thinking else None,
-            max_tokens=32000,
-            extra_headers={"anthropic-beta": "prompt-caching-2024-07-31,output-128k-2025-02-19"}
-
-        )
+    def __init__(self, system_prompt: str, thinking: bool = True, model_type: str = "anthropic-claude-3-7"):
+        model_provider = ModelProvider.getInstance(model_type)
+        self.model = model_provider.get_model(thinking)
+        
         self.system_prompt = system_prompt
         self.messages = [SystemMessage(content=[{
             "type": "text",
             "text": self.system_prompt,
-            "cache_control": { "type": "ephemeral" },
+            "cache_control": model_provider.get_cache_control(),
         }])]
 
     def create_executor(self, tools: list[Tool]):
@@ -88,5 +84,5 @@ def pretty_print_step(msg):
     elif hasattr(msg, "response_metadata") and msg.response_metadata.get('model') is not None:
         print(f"🤖:{msg.content}")
     else:
-        print(f"👤: {msg.content}")
+        print(f"��: {msg.content}")
 

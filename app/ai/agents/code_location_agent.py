@@ -3,7 +3,11 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from app.ai.agent_core.base_agent import BaseAgent
 from app.ai.tools.read_code import CodeReader
+import os
+from abc import ABC
+from app.util.logger import get_logger
 
+logger = get_logger(__name__)
 
 class CodeLocationAnswer(BaseModel):
     final_answer: bool = Field(description="Whether this is the final answer")
@@ -30,7 +34,6 @@ class CodeLocationAgent(BaseAgent):
         answer = self.get_response_text(question)
         relevant_files_question = f"{self.code_reader.get_file_structure()} List indices of all files that are relevant to the answer, esp the ones you referred to in your answer: {answer}"
         relevant_files = self.get_structured_response(relevant_files_question, RelevantFiles).relevant_files
-        print(relevant_files)
 
         return f"{answer}\n\nRelevant files:\n{self.code_reader.get_file_structure(relevant_files)}"
     

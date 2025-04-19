@@ -15,11 +15,11 @@ def _initialize_logging() -> None:
     
     # Configure the root logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(logging.ERROR)
     
     # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.ERROR)
     
     # Create formatter
     formatter = logging.Formatter(

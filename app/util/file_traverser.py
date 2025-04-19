@@ -3,6 +3,9 @@ from typing import Iterator, Optional
 from pathlib import Path
 
 from app.util.file_acceptor import FileAcceptor
+from app.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class FileTraverser:
@@ -30,7 +33,7 @@ class FileTraverser:
             with open(file_path, 'r', encoding=self.charset) as f:
                 return f.read()
         except Exception as e:
-            print(f"Error reading file {file_path}: {e}")
+            logger.error(f"Error reading file {file_path}: {e}")
             return None
 
     def __iter__(self) -> Iterator[Path]:

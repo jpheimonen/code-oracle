@@ -1,10 +1,17 @@
-from abc import ABC
-from typing import AsyncGenerator, Type, TypeVar
+import os
+from abc import ABC, abstractmethod
+from typing import Any, AsyncGenerator, List, Type, TypeVar
+
+from langchain_core.messages import BaseMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 from pydantic import BaseModel
 
 from app.ai.agent_core.langchain_service import LangChainService
 from app.ai.prompt_loader import PromptLoader
+from app.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 prompt_loader = PromptLoader()
 
@@ -12,9 +19,9 @@ T = TypeVar('T', bound=BaseModel)
 
 class BaseAgent(ABC):
     def __init__(self, **kwargs) -> None:
-        print("Initializing BaseAgent")
+        logger.info("Initializing BaseAgent")
         system_prompt = self._get_system_prompt(**kwargs)
-        print(system_prompt)
+        logger.debug(system_prompt)
         self.langchain_service = LangChainService(system_prompt, thinking=self.is_thinking())
         
     def is_thinking(self) -> bool:
@@ -36,7 +43,7 @@ class BaseAgent(ABC):
     
     def get_structured_response(self, prompt: str, output_schema: Type[T]) -> T:
         response = self.langchain_service.get_structured_response(prompt, output_schema)
-        print(response)
+        logger.debug(response)
         return response #type: ignore
 
     def create_tools(self) -> list[Tool]:
@@ -52,7 +59,7 @@ class BaseAgent(ABC):
 
 def extract_step_content(msg):
     if hasattr(msg, "name") and msg.name is not None:
-        print(f"🛠️ :{msg.content}")
+        logger.debug(f"🛠️ :{msg.content}")
     elif isinstance(msg.content, list):
         for item in msg.content:
             if item.get("type") == "text":

@@ -1,22 +1,26 @@
 from collections.abc import AsyncGenerator
-import os
-from typing import Type
+from typing import Type, List, Any, Dict, Optional
 from anthropic import BaseModel
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import Tool
 from langchain_core.runnables import RunnableConfig
 from app.ai.agent_core.model_provider import ModelProvider
 from dotenv import load_dotenv
-# from langchain.globals import set_debug
-# set_debug(True)
+import json
+
+DEBUG = False    
+if DEBUG:
+    from langchain.globals import set_debug
+    set_debug(True)
 load_dotenv()
 config = RunnableConfig(recursion_limit=100)
+
 class LangChainService:
-    def __init__(self, system_prompt: str, thinking: bool = True, model_type: str = "anthropic-claude-3-7"):
+    def __init__(self, system_prompt: str, thinking: bool = True, model_type: str = "gemini-2-5-flash"):
         model_provider = ModelProvider.getInstance(model_type)
         self.model = model_provider.get_model(thinking)
+        self.model_type = model_type
         
         self.system_prompt = system_prompt
         self.messages = [SystemMessage(content=[{
@@ -26,9 +30,35 @@ class LangChainService:
         }])]
 
     def create_executor(self, tools: list[Tool]):
-        return create_react_agent(self.model, tools)
+        # Add special handling for Gemini models
+        if self.model_type == "gemini-2-5-flash":
+            # For Gemini, bind tools directly to the model first
+            bound_model = self.model.bind_tools(tools, tool_choice="auto")
+            return create_react_agent(bound_model, tools)
+        else:
+            return create_react_agent(self.model, tools)
 
-    def execute(self, input: str, tools: list[Tool] = []) -> None:
+    def _process_gemini_tool_calls(self, msg: Any) -> None:
+        """Process Gemini tool calls from additional_kwargs and add them to standard tool_calls."""
+        if self.model_type == "gemini-2-5-flash" and hasattr(msg, "additional_kwargs"):
+            tool_calls = msg.additional_kwargs.get("tool_calls", [])
+            if tool_calls and not msg.tool_calls:
+                # Copy tool calls from additional_kwargs to the standard tool_calls field
+                for tc in tool_calls:
+                    if tc.get("type") == "function" and tc.get("function"):
+                        try:
+                            args = json.loads(tc["function"].get("arguments", "{}"))
+                        except:
+                            args = tc["function"].get("arguments", "{}")
+                            
+                        msg.tool_calls.append({
+                            "id": tc.get("id", ""),
+                            "type": "function",
+                            "name": tc["function"].get("name", ""),
+                            "args": args
+                        })
+
+    def execute(self, input: str, tools: list[Tool] = []) -> List[Any]:
         agent = self.create_executor(tools)
         self.messages.append(HumanMessage(content=input)) # type: ignore
         # Run the agent with proper message formatting
@@ -41,6 +71,10 @@ class LangChainService:
             msg = step["messages"][-1]
             self.messages.append(msg)
             steps.append(msg)
+            
+            # Handle Gemini tool calls
+            self._process_gemini_tool_calls(msg)
+            
             pretty_print_step(msg)
         return steps # type: ignore
 
@@ -54,6 +88,10 @@ class LangChainService:
         ):
             msg = step["messages"][-1]
             self.messages.append(msg)
+            
+            # Handle Gemini tool calls
+            self._process_gemini_tool_calls(msg)
+                            
             yield msg
             pretty_print_step(msg)    
 
@@ -77,12 +115,10 @@ def pretty_print_step(msg):
                     print(f"{value}")
                     print(f"</{key}>")
                 print(f"</{item.get('name')}>")    
-
-                
             else:
                 print(item)
     elif hasattr(msg, "response_metadata") and msg.response_metadata.get('model') is not None:
         print(f"🤖:{msg.content}")
     else:
-        print(f"��: {msg.content}")
+        print(f"🤖: {msg.content}")
 

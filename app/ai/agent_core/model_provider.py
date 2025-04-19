@@ -57,7 +57,11 @@ class GeminiFlashModelProvider(ModelProvider):
             "api_key": env_config["gemini_api_key"],
             "temperature": 0.7,
             "max_output_tokens": 8192,
-            "thinking_config": {"thinking_budget": 4096, "thinking_enabled": True} if thinking else None
+            # Additional configs needed for proper tool calling
+            "convert_system_message_to_human": True,
+            # Set a lower temperature for better tool calling behavior
+            "temperature": 0.1,
+         #   "thinking_config": {"thinking_budget": 4096, "thinking_enabled": True} if thinking else None
         }
     
     def get_cache_control(self) -> Dict[str, Any]:

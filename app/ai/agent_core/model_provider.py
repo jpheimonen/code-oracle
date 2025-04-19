@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any
 from config.env import env_config
 from langchain_anthropic import ChatAnthropic
-from langchain_openai import AzureChatOpenAI
 
 class ModelProvider(ABC):
     @staticmethod
@@ -49,25 +48,3 @@ class AnthropicClaude3_7ModelProvider(ModelProvider):
         """Return a configured ChatAnthropic instance."""
         return ChatAnthropic(**self.get_model_config(thinking))
 
-class AzureAIO3MiniModelProvider(ModelProvider):
-    def get_model_config(self, thinking: bool = True) -> Dict[str, Any]:
-        """Return Azure AI o3-mini configuration with high reasoning effort."""
-        return {
-            "model": "o3-mini",
-            "api_key": env_config["azure_api_key"],
-            "api_version": env_config["azure_api_version"],
-            "azure_endpoint": env_config["azure_endpoint"],
-            "deployment_name": env_config["azure_o3_mini_deployment"],
-            "max_tokens": 4096,
-            "model_kwargs": {
-                "reasoning_effort": "high"
-            }
-        }
-    
-    def get_cache_control(self) -> Dict[str, Any]:
-        """Return o3-mini specific cache control settings."""
-        return {"type": "permanent"} 
-    
-    def get_model(self, thinking: bool = True) -> AzureChatOpenAI:
-        """Return a configured AzureChatOpenAI instance."""
-        return AzureChatOpenAI(**self.get_model_config(thinking)) 

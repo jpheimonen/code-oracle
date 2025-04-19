@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import AsyncGenerator, Optional, Type, TypeVar, Generic
+from typing import AsyncGenerator, Type, TypeVar
 from langchain_core.tools import Tool
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ prompt_loader = PromptLoader()
 T = TypeVar('T', bound=BaseModel)
 
 class BaseAgent(ABC):
-    def __init__(self, **kwargs: dict) -> None:
+    def __init__(self, **kwargs) -> None:
         print("Initializing BaseAgent")
         system_prompt = self._get_system_prompt(**kwargs)
         print(system_prompt)
@@ -37,7 +37,7 @@ class BaseAgent(ABC):
     def get_structured_response(self, prompt: str, output_schema: Type[T]) -> T:
         response = self.langchain_service.get_structured_response(prompt, output_schema)
         print(response)
-        return response
+        return response #type: ignore
 
     def create_tools(self) -> list[Tool]:
         return [] # type: ignore

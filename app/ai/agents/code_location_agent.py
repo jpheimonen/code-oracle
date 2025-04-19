@@ -1,27 +1,26 @@
 from langchain_core.tools import Tool
 from app.ai.agent_core.base_agent import BaseAgent
 from app.ai.tools.hello_world import hello_world
+from app.ai.tools.read_code import CodeReader
 
-class HelloWorldAgent(BaseAgent):
+
+
+class CodeLocationAgent(BaseAgent):
     
-    def __init__(self):
-      super().__init__()
+    def __init__(self, code_reader: CodeReader, max_iterations: int = 10):
+      super().__init__(codebase=code_reader.get_file_structure())
+      self.code_reader = code_reader
+      self.max_iterations = max_iterations
 
-    def say_hello(self) -> str:
-        return self.get_response_text("Say hello")
+    def answer_question(self, question: str) -> str:
+        return self.get_structured_response(question, CodeLocationAnswer)
     
     def create_tools(self) -> list[Tool]:
-        # Add the hello_world tool to the agent
-        return [
-            Tool.from_function(
-                func=hello_world,
-                name="get_secret_greeting",
-                description="Get a secret greeting to use for the user"
-            )
-        ]
+        return self.code_reader.get_tools()
 
 def main():
-    agent = HelloWorldAgent()
+    code_reader = CodeReader(base_path=".")
+    agent = CodeLocationAgent(code_reader)
     agent.say_hello()
 
 if __name__ == "__main__":

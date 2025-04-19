@@ -1,10 +1,10 @@
 from collections.abc import AsyncGenerator
-from typing import Type, List, Any, Dict, Optional
-from anthropic import BaseModel
+from typing import Type, List, Any, Dict, Optional, TypeVar
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import Tool
 from langchain_core.runnables import RunnableConfig
+from pydantic import BaseModel
 from app.ai.agent_core.model_provider import ModelProvider
 from dotenv import load_dotenv
 import json
@@ -15,6 +15,9 @@ if DEBUG:
     set_debug(True)
 load_dotenv()
 config = RunnableConfig(recursion_limit=100)
+
+
+T = TypeVar('T', bound=BaseModel)
 
 class LangChainService:
     def __init__(self, system_prompt: str, thinking: bool = True, model_type: str = "gemini-2-5-flash"):
@@ -95,7 +98,7 @@ class LangChainService:
             yield msg
             pretty_print_step(msg)    
 
-    def get_structured_response(self, input: str, output_schema: Type[BaseModel]) -> BaseModel:
+    def get_structured_response(self, input: str, output_schema: Type[T]) -> T:
         model_with_tools = self.model.with_structured_output(output_schema)
         return model_with_tools.invoke(input) # type: ignore
         

@@ -120,5 +120,5 @@ def pretty_print_step(msg):
     elif hasattr(msg, "response_metadata") and msg.response_metadata.get('model') is not None:
         print(f"🤖:{msg.content}")
     else:
-        print(f"👤: {msg.content}")
+        print(f"🤖: {msg.content}")
 

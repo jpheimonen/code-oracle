@@ -1,6 +1,6 @@
 # Code Oracle
 
-A Python tool for locating code using Gemini 2.5 Flash.
+A Python tool for locating code using Gemini 2.5 Flash. Capable of shifting through large amounts of code to locate the answer to your query.
 
 ## Features
 
@@ -20,7 +20,7 @@ uv run main.py
 
 ## Using as MCP in Cursor
 
-To use Code Oracle as a Meta Code Protocol (MCP) server in Cursor:
+To use Code Oracle as a Model Context Protocol (MCP) server in Cursor:
 
 1. Clone this repository
 2. Have `uv` installed

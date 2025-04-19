@@ -9,7 +9,7 @@ from app.ai.agent_core.model_provider import ModelProvider
 from dotenv import load_dotenv
 import json
 
-DEBUG = False    
+DEBUG = True    
 if DEBUG:
     from langchain.globals import set_debug
     set_debug(True)

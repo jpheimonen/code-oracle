@@ -11,7 +11,7 @@ prompt_loader = PromptLoader()
 T = TypeVar('T', bound=BaseModel)
 
 class BaseAgent(ABC):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: dict) -> None:
         print("Initializing BaseAgent")
         system_prompt = self._get_system_prompt(**kwargs)
         print(system_prompt)

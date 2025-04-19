@@ -48,14 +48,17 @@ class FileAcceptor:
     }
 
     def __init__(self, root_dir: str):
-        self.root_dir = Path(root_dir)
+        self.root_dir = Path(root_dir).resolve()  # Changed to use .resolve() to get absolute path
+        print(f"FileAcceptor initialized with root_dir: {self.root_dir}")
         self.gitignore_patterns: List[str] = []
         
         # Find and load gitignore
         gitignore_path = self._find_gitignore(self.root_dir)
         if gitignore_path:
+            print(f"Found .gitignore at: {gitignore_path}")
             self._load_gitignore(gitignore_path)
         else:
+            print(f"No .gitignore found. Search started from: {self.root_dir}")
             warnings.warn("No .gitignore file found. All files will be processed unless explicitly ignored.")
 
     def _find_gitignore(self, start_dir: Path) -> Optional[Path]:
@@ -72,6 +75,7 @@ class FileAcceptor:
         
         while current_dir != current_dir.parent:
             gitignore_path = current_dir / '.gitignore'
+            print(f"Checking for .gitignore at: {gitignore_path}")
             if gitignore_path.exists():
                 return gitignore_path
             current_dir = current_dir.parent

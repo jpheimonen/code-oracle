@@ -12,7 +12,7 @@ The FastMCP server handles connections, protocol details, and message routing fo
 It exposes tools that allow Language Models to interact with code repositories.
 
 Parameters:
-    name (str): The name of the MCP server, displayed to users in Claude Desktop.
+    name (str): The name of the MCP server, displayed to users in Claude Desktop and Cursor.
 """
 
 @mcp.tool()

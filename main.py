@@ -16,9 +16,6 @@ def main() -> None:
         question = input("Enter your question about the codebase: ")
     
     print(code_location_agent.answer_question(question))
-def main_2() -> None:
-    file_reader = CodeReader(base_path=".")
-    print(file_reader.get_file_structure())
 
 if __name__ == "__main__":
     main() 

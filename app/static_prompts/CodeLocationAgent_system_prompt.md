@@ -19,6 +19,12 @@ You might also be prompted to give the final answer IMMEDIATELY
 
 Your answer should consist of both the answer and list of relevant file indices
 
+
+<important>
+You MUST use the read_code tool to provide the answer!!!!!!!!!
+
+Do NOT attempt to answer any of the queries without reading the code. 
+</important>
 <codebase>
 {codebase}
 </codebase>

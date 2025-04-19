@@ -1,13 +1,15 @@
 from collections.abc import AsyncGenerator
-from typing import Type, List, Any, Dict, Optional
-from anthropic import BaseModel
+from typing import Type, List, Any, Dict, Optional, TypeVar
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import Tool
 from langchain_core.runnables import RunnableConfig
+from pydantic import BaseModel
 from app.ai.agent_core.model_provider import ModelProvider
 from dotenv import load_dotenv
 import json
+import asyncio
+from app.util.logger import get_logger
 
 DEBUG = False    
 if DEBUG:
@@ -15,6 +17,11 @@ if DEBUG:
     set_debug(True)
 load_dotenv()
 config = RunnableConfig(recursion_limit=100)
+
+
+T = TypeVar('T', bound=BaseModel)
+
+logger = get_logger(__name__)
 
 class LangChainService:
     def __init__(self, system_prompt: str, thinking: bool = True, model_type: str = "gemini-2-5-flash"):
@@ -95,30 +102,30 @@ class LangChainService:
             yield msg
             pretty_print_step(msg)    
 
-    def get_structured_response(self, input: str, output_schema: Type[BaseModel]) -> BaseModel:
+    def get_structured_response(self, input: str, output_schema: Type[T]) -> T:
         model_with_tools = self.model.with_structured_output(output_schema)
         return model_with_tools.invoke(input) # type: ignore
         
 def pretty_print_step(msg):
     if hasattr(msg, "name") and msg.name is not None:
-        print(f"🛠️ :{msg.content}")
+        logger.debug(f"🛠️ :{msg.content}")
     elif isinstance(msg.content, list):
         for item in msg.content:
             if item.get("type") == "text":
-                print(f"🤖: {item.get('text')}")
+                logger.debug(f"🤖: {item.get('text')}")
             elif item.get("type") == "thinking":
-                print(f"💭: {item.get('thinking')}")
+                logger.debug(f"💭: {item.get('thinking')}")
             elif item.get("type") == "tool_use":
-                print(f"<{item.get('name')}>\n")
+                logger.debug(f"<{item.get('name')}>\n")
                 for key, value in item.get("input", {}).items():
-                    print(f"<{key}>")
-                    print(f"{value}")
-                    print(f"</{key}>")
-                print(f"</{item.get('name')}>")    
+                    logger.debug(f"<{key}>")
+                    logger.debug(f"{value}")
+                    logger.debug(f"</{key}>")
+                logger.debug(f"</{item.get('name')}>")    
             else:
-                print(item)
+                logger.debug(item)
     elif hasattr(msg, "response_metadata") and msg.response_metadata.get('model') is not None:
-        print(f"🤖:{msg.content}")
+        logger.debug(f"🤖:{msg.content}")
     else:
-        print(f"🤖: {msg.content}")
+        logger.debug(f"🤖: {msg.content}")
 

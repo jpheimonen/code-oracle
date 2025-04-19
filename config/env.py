@@ -15,8 +15,8 @@ env_config: Dict[str, Any] = {
 # Function to validate required environment variables
 def validate_env_config() -> None:
     """Validate that all required environment variables are set."""
-    if not env_config["anthropic_api_key"]:
-        raise ValueError("ANTHROPIC_API_KEY environment variable is required but not set")
+    if not env_config["gemini_api_key"]:
+        raise ValueError("GEMINI_API_KEY environment variable is required but not set")
 
 # Validate environment configuration on import
 validate_env_config()
